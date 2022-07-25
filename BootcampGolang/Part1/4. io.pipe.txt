@@ -1,0 +1,11 @@
+https://www.youtube.com/watch?v=LHZ2CAZE6Gs
+justforfune channel 
+
+Introduction to the io package using 3 types that we didn't heard before
+io.PipeReader
+
+io.PipeWriter
+
+io.multimeter
+
+io.Pipe returns 2 elements a reader and a Writer

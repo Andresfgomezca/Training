@@ -1,0 +1,210 @@
+Desarrollo seguro y ciclo de vida de desarrollo seguro
+
+Techtalk
+
+Presentador: Aldo Malaver
+tech manager en globant
+
+scalable platforms studio
+
+agenda:
+
+1. Introduccion a la seguridad en el ciclo de vida del software
+
+2. OWASP TOP 10
+
+3. Fase de diseño
+
+4. Fase de implementacion y pruebas
+
+1. Porque es importante?
+
+la se4guridad es importante porque ha empezado a ser un asunto de interes economico, politico y social. Noticias sobre ataques son cada vez mas comunes en la prensa no especializada.
+
+como hago que sea mas seguro? como evitar ataques o hacer mas dificil el ingreso?
+
+la mayoria de los ataques se aprovechan de vulnerabilidades para poder ser exitossos.
+es un hueco que tienen los sistemas o aplicaciones que permiten que el atacante haga funcionar el software de una forma no deseada o esperada
+
+Razones:
+-Errores de programacion
+-Errores de diseño
+-Errores de configuracion del software
+
+Muchas de las vulnerabilidades se encuentran en el software, se deben al desconocimiento y la falta de concienciacion sobre la seguridad:
+-diseño
+-desarrollo o implementacion
+-Su operacion o explotacion
+
+2. Introduccion a la seguridad en el SDLC
+modelado de amenazas STRIDE
+
+spoofing: suplantacion de identidad - aspecto: autenticacion : contraseña vulnerada
+tampering: modificacion de datos en transito - aspecto: integridad -  modificacion de datos, ejemplo monto en una transaccion
+
+repudiation: repudio, aspecto: no repudio, tienen que tener trasabilidad para detectar cuando se ha hecho un ataque, es un factor muy dificil
+
+information disclosure: escape de informacion - aspecto: confidencialidad, cuando no hay control en la informacion por autenticacion
+
+denial of service: denegacion de servicio - aspecto: disponibilidad, afectan el funcionamiento del sistema
+
+elevation of privileges: escalado de privilegios - aspecto: Autorizacion. que los atacantes puedan alcanzar los privilegios de administrador
+
+
+Ciclo de vida de desarrollo
+5 fases 
+1. analisis y requisitos, asegurar que los requisitos de seguridad pertinentes se añaden a los requisitos del software
+
+2. diseño, revisar el diseño para detectar las amenazas y aplicar contramedidas
+
+3. implementacion
+
+4. testing y acceptance, verificar que cumpla con la seguridad establecida
+
+5. operacion, mantenimiento de la seguridad del software, gestion de incidentes y gestion de los artefactos
+
+
+Aspectos de seguridad apra cada fase
+
+1. -legislacion vigente de cada pais que pudiera afectar a la informacion
+-politicas corporativas: revisar las politicas de seguridad de la organizacion
+-Obligaciones contractuales: se revisan los contratos y acuerdos a nivel de servicio (SLAs) para detectar posibles obligaciones con terceros.
+-Cumplimiento con estandares: revisar los estandares con los que haya que cumplir
+-Buenas practicas de materia de seguridad: se revisan esstandares de la industria que puedan aportar
+-Requisitoss de negocio: se deben cumplir de forma segura
+
+2. definir modelo de amenazas
+-identificar objetivos de seguridad
+-analisis del sistema
+-descomposicion del sistema en componentes
+-identificacion de amenazas
+-mitigaciond de amenazas
+-priorizacion de las vulnerabilidades(hacer analisis del impacto de esas vulnerabilidades para priorizarlas) . vuelve a analisis del sistema
+
+2. superficie de ataque
+que se puede atacar?: vistas GUI, SERVICIOS WEBS, SOCKETS, METODOS DE COMUNICACION ENTR3E PROCESOS IPC, Servicios o procesos, sistemas operativos, Middleware, servidores(web, db, etc..)
+
+3.
+basicamente ver y ejecutar lo que esta diseñado
+-modelado de amenazas durante el desarrollo
+-mandenimiento de la superficie de ataques durante el desarrollo
+-supervision de la arquitectura(contra requisitos o estandares de referencia) durante el desarrollo
+revision de codigo - SAST o pruebas de codigo
+-Automatico( A TRAVES de una herramienta)
+-manual(Auditor de seguridad)
+-manual(Peer review-developer) math.random es vulnerable en java, existen formas de generar numeros aleatorios a partir de java 8
+Pruebas unitarias de seguridad
+
+4. 
+auditoria de las aplicaciones, hacer analisis dinamicos de las apps, se hacen las pruebas das, evaluaciones de seguridad dinamita de 2 tipos
+-automatico: escaneo de vulnerabilidades en ejecucion y revision de los resultados
+-manual: donde un auditor realiza tecnicas de hacking para buscar las vulnerabilidades en la aplicacion.
+el ethical hacking debe implementarse desde el inicio.
+
+aplicaciones para testear, ethicalhacking, nessus, metasploit, kali linux, wireshark, drozer, muestran vulnerabilidades
+
+herramientas de revision de codigo -SAST
+kiuwan, checkmarx, appscan revision de codigo statico
+
+5. fase en produccion donde se espera mantener la seguridad, e identificar los ataques.
+patch management y proceso de bug tracking. 
+
+
+2. OWASP TOP 10- lo que se debe contemplar en el diseño
+-1. inyecciones
+-2. rotura de autenticacion y gestion de sesiones
+-3. entidades externas xml(xxe), no usar xml porque esta muy expuesto.
+-4. exposiciond de datos sensibles
+-5. rotura de control de acceso, ganar acceso a informacion que no deberia tener acceso
+-6. fallo en la configuracion de seguridad, eje: dejar un puerto abierto de un servidor
+-7. Cross-site scripting(Xss), evitar la ejecucion de scripts
+-8. Deserializacion insegura, deserializar de forma incorrecta
+-9. Usar componentes con vulnerabilidades conocidas, cve, muestra que servidores o aplicaciones tienen vulnerabilidades
+-10.Insuficiente monitorizacion y trazabilidad, un sistema que no monitorea trazabilidad.
+
+API Y MECANISMOS PARA ASEGURARLAS
+
+las empreseas indican que el reto mas desafiante a resolver es la seguridad
+
+1. comunicacion segura TLS/SSL
+2. Anti Farming (anuncios que aprovechan de apis expuestas para robar informacion) authenticaciones basicas para no dejar apis expuestas
+3. Denegacion de servicios
+4. Basic Authentication, es lo mas basico para asegurar una api
+5. API Key, es un identificador de api
+6. SAML, mecanismo de aseguramiento para las apis
+7. OAUTH
+8. JWT
+
+3. Fase de diseño
+Controles
+
+1-directivo
+2-disuasivo: hacer parecer que no se tiene control pero si lo tienes (honey pot)
+3-preventivo: se hace en diseño 
+4-detectivo: intuicion para detectar las fallas del codigo que no funcionan bien
+5-correctivo: despues del ataque
+6-restauracion/recuperacion: despues del ataque para poder recuperar lo perdido
+
+acorde con el riesgo, efectiva en costos, efectiva, alineado con necesidades de negocio. 
+
+-modelado de amenazas
+
+centrado en software, seguridad y en el activo
+
+proceso
+identificar activos, describir arquitectura, descomponer la aplicacion, identificar las amenazas, documentar amenazas, puntuar amenazas.
+
+-modelado de superficie de ataque
+
+amenaza interna, externa, accidental, intencional, natural, circustancial
+
+vectores de ataque: entradas, red y fisicas
+
+mecanismos para asegurar los ataques: defensa en capas, interfaces restringidas, proveedores thirdparties.
+
+
+4.Fase de implementacion y pruebas
+que es SAST? es analisis estatico, se realiza en alguna version del codigo fuente y en otros casos se realiza en el codigo objeto.
+ventajas: repetible, rapido y escalable
+inconvenientes: falsos positivos, falsos negativos-son casos que se pueden detectar y otros que no.
+
+estas validan tipos de vulnerabilidades que puede encontrar:
+-cross-site scripting y sus variantes
+-inyeccion sql, comandos,LDAP,XPath
+-path traversal
+-desbordamiento de buffers
+-abuso de apis
+-mensajes de erro muestran informacion sensible
+-redireccion a un sitio incorrecto
+
+herramientas de pruebas sast en codigo: yasca, etc
+
+Que es DAST? analisis dinamico de software, es un tipo de analisis que supone la ejecucion dle programa y observa su comportamiento.
+
+realiza pruebas fuzz o fuzzing dde forma automatica o semi-automatica, que tienen por objetivo la inclusion de informacion no correcta, no esperada o aleatoria en las entradas de un programa.
+
+ventajas: pueden identificar comportamientos no esperados, extenso, identificacion de errores y desbordamiento de memoria
+
+inconveniente: es lento y requiere una base de conocimientos para hacer pruebas adecuadas.
+
+herramientas: burpsuite, soapui pro, owasp zap, acunetix
+
+Que es SAILC?
+
+analisis y construccion-entrega-integracion y preparacion-produccion.
+
+recomendacion para cuando se construyen imagenes.
+
+-crear usuario no-root para el contenedor
+-usar imagenes base confiables para imagenes
+-no usar instrucciones update solas en un dockerfile
+-escanear y construir imagenes para imcluir parches de seguridad
+-agregar la instruccion healthcheck
+-eliminar permisos setuid y setguid en imagenes
+-usar COPY y no ADD
+-Instalar solo paquetes verificados
+-No almacenar secretos en dockerfile
+-No correr ssh dentro de los contenedores
+-No mapear puertos privilegiados dentro de contenedores
+-Abrir solo puertos necesarios sobre el contenedor
+-Asegurar dockerfile sean reproducibles y de confianza.

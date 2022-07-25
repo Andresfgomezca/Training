@@ -1,0 +1,84 @@
+Context
+
+	Context is a package in Go that allows to pass a "context" to a program, like
+
+	-a timeout
+
+	-deadline
+	
+	-channel
+
+	to indicate stop and return.
+
+	For example if one of the api's is taking too long to respond, it is better to cancel the request instead as it may end up increasing the load and degrading the performance of all other requests.
+
+Creating a context
+
+	In Go, you can either create a new context or derive from an existing context.
+
+	Let's take a look at a few functions provided by the context package.
+
+Background
+
+context.Background() (ctx Context)
+
+	-The `context.Background()` function returns an empty context.
+
+	-should be used only at a high level or top level request handler.
+
+	-can be used to derive other contexts.
+
+	-ctx, cancel := context.Background()
+
+TODO
+
+context.TODO() (ctx Context)
+
+	-`context.TODO()` returns an empty context.
+
+	-should be used at a high level or when we aren't sure what context to use, or the context hasn't been added to to the function yet and we plan to add it in the future.
+
+	-NOTE : todo is exactly same as background. The difference is, this can be used by static analysis tools to validate if the context is being passed around properly, which is an important detail, as the static analysis tools can help surface potential bugs early on, and can be hooked up in a CI/CD pipeline. Read https://golang.org/src/context/context.go
+
+	-ctx, cancel := context.TODO()
+ 
+WithValue
+
+context.WithValue(parent Context, key, val interface) (ctx Context)
+
+	-This function takes in a context and returns a derived context where value '
+val'
+ 	is associated with 
+'key'
+
+	 and flows through the context tree with the context. This means that once you get a context with value, any context that derives from this gets this value.
+
+	-It is not recommended to pass in critical parameters using context value, instead, functions should accept those values in the signature making it explicit.
+
+	-ctx := context.WithValue(context.Background(), key, "test")
+ 
+WithCancel
+
+context.WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+
+	-This function creates a new context derived from the parent context that is passed in.
+
+	-The parent can be a background context or a context that was passed into the function.
+
+	-This returns a derived context and the cancel function. Only the function that creates this should call the cancel function to cancel this context.
+
+	-Passing around the cancel function is not recommended.
+
+ctx, cancel := context.WithCancel(context.Background())
+ 
+WithDeadline
+
+context.WithDeadline(parent Context, d time.Time) (ctx Context, cancel CancelFunc)
+
+	-This function returns a derived context from its parent that gets cancelled when the deadline exceeds or cancel function is called.
+
+	-We can create a context that will automatically get canceled after a certain time.
+
+	-If it is passed around to child functions. When that context gets canceled because of deadline running out, all the functions that received the context get notified to stop work and return.
+
+	-ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(2 * time.Second))

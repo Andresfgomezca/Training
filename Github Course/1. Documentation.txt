@@ -1,0 +1,98 @@
+Git y Github | Curso Práctico de Git y Github Desde Cero
+https://www.youtube.com/watch?v=HiXLkL42tMU
+
+What is Git? 
+version control system(VCS) FOR TRACKING changes in computer files
+
+	-Distributed version control
+	-Coordinates work between multiple developers
+	-Who made what changes and when
+	-Revert back any time
+	-Local and remote repos
+
+	Git works with local and external repositories
+
+Basic concepts of Git
+
+	-Keeps track of code history
+	-Takes "snapshots" of your files 
+	-You decide when to make snapshots by making a commits
+	-You can visit any snapshot any time
+	-You can stage files before committing
+
+Basic commands
+
+	This commands operate over the operative system directly, it is commonly used in the terminal (bash-linux)
+Git has 3 states
+
+		Working directory(where we are working)
+	git add
+	->	Staging area(files prepared for the changes)
+								git commit
+		Repository					<-
+
+git init - we are creating a new project or to work in an existing project
+git add - adds the changes to the staging area
+git status - shows where are the changes (working directory/staging area/repository)
+git commit - passes the changes from the staging area to the repository (snapshot)
+git push - loads the commit
+git pull - downloads the current status of the repository
+git clone - creates a copy of the repository to the computer
+
+ls - shows list of files
+pwd - shows the path
+
+1. we need to install git in the computer
+2. we create a project
+	-we need a folder where the project will be located
+	-we need to open the bash in the folder of the project 
+	*in cmd we use cd to travel to this path
+	*in bash we can move with cd too
+3. we use git init to starts using git in this project
+4. git status will show the files operating and the information of the current commit
+5. git add to add the files to the project
+6. git commit will load the changes, we need to config git to who is loading the changes
+	-git config --global user.email "af.gomez@globant.com"
+	-git config --flobal user.name "andres felipe gomez"
+
+	*git commit to create the first commit in the master branch
+	*i will unlock the name for the commit
+	*esc -> :wq (write-quite) 
+in this way the commit will be added to the project
+
+7. git log will show the id of the commit and its information
+
+	git status will show that there are no changes in the code
+
+8. git checkout -- (file) will discard the changes in the file
+
+9. git diff (file name) shows the changes in the file
+10. git log shows the previous commits
+11. we can create a gitignore file to ignore those files
+.gitignore
+	-we need to add this file to the project in git
+12. git commit to add .gitignore to the repository
+
+	***git commit -m "message for the commit"
+13. git branch will show the branches that the project has
+	-too add a new branch we'll write -> git branch (name of the new branch)
+
+14. git checkout (branch name) will switch to another branch
+
+15. git add . -> adds all files to working directory
+
+now we need to use github to connect with the repositories of the project
+
+to add this commit to a repository we need to use the command
+	-git remote add origin (repository link) -> to add the origin of the project
+	-git push -u origin master 
+16. we can also add a read me to show the description of the project and the format is md
+
+17. we can download-clone the repository in the bash directly
+
+	-git clone (link)
+
+
+
+
+

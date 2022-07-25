@@ -1,0 +1,45 @@
+1. 
+int -> entero con signo
+uint -> entero sin signo
+el signo ocupa un bit = menor capacidad
+uintptr -> direcciones de memoria de punteros
+2.
+var m map[string]int
+si un map que es nill no se le pueden agregaar llaves.
+
+es requerido inicializarlo con make o colocar corchetes al finaal del var
+m=make()
+
+3. go modules
+es como maven en java?
+si
+utilizar viper golang 
+como administrador de dependencias
+
+
+instalacion
+go get url
+
+4.
+big= 1>>100
+small=big>>99
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

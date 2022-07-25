@@ -1,0 +1,152 @@
+TDD 
+Test Driven Development
+Rob Robless
+Kathryn James
+
+Glober 2014
+london, teachs TDD, simple desing and clean code
+
+Andres Manikis
+
+Quick Poll (core of the talk)
+
+
+he wants to share the amazing technique in order to get more people to use it.
+
+how can we apply it to our daily lives.
+
+What?
+	A software development process that focuseson writing the test before you write the code, not test, no framework
+
+before writing our actual code we will write our testS
+
+
+Origin
+
+	invented/discovered by kent beck towards the end of the 1990s
+
+Part of extreme programming (first called Test-first Programming)
+
+
+Why?
+
+	all these items are recommended by andres
+
+	-Testable Code, as easier the code is to test, the better
+
+	-High coverage, close to 100% (test coverage) 
+
+	-Laser focus, look over a loup to be over every tiny line of code
+
+	-Better architecture (simple design / YAGNI "you ain't going to need it") this is a good 
+
+	-Continous and fearless refactoring (enables scout rule) we can change the code without changing the complete code, we must not change the behiviour of our code, manually testing we can verify this process
+
+	-Go faster, allow us to forget to test the code and search for errors
+	
+	-Catch errors right away
+
+	-Gamification, its like we are playing with the code, because if we see our test running ok we'll be able to feel proud of our code, it is a nice feeling
+
+	-Testing is not seen as a separate(and usually boring) task. it is not necessary to go backwards because the test are already created
+
+	-Enjoy!, andres enjoys his work when he applied tdd, it allows him to do the code more shareble
+
+
+How?
+
+	Its actually preaty simple, it requires a lot of practice
+
+	1. Red: write a failing test for whatever we need to implement
+	2. Green: we make the test pass in a simple and fast way
+	3. Refactor: now focus on quality, keeping the behaviour unchanged. we can do it safety because we have the test running green, we just refactur what we have
+	4. then we can go with a next test, red again.
+
+Three Rules
+
+	1. You cannot write new code if it's not for making a test pass, we need a failing test that requires a test to continue programming
+	2. You cannot write more than one failing test at a time. we might think about future test, but we need to be focus in the current test.
+	3. You cannot write more code than the necessary. if we write more than the necessary we will not have the test to cover it.
+
+we need to practice a lot to understand the technique. with simple exercises is the best way to do it.
+
+Another good practice is programming with a pair to learn more about this technique
+
+
+Demo
+FizzBuzz Kata
+
+he starts in a clean state
+installs a test runner
+
+opens vs and creates a failing test 
+	
+adds the script to his json to run the test runner over all the tests of his code
+
+he initializes git
+git init
+
+creates .gitignore
+node_modules
+	
+he creates a test file first
+we wants to create a function that returns the numbers under the input and the input
+if the number is dividable by 3 or 5 it will return the word FizzBuzz
+divided by 5 returns Buzz
+Divided by 3 returns Fizz
+
+he is using the syntaxs of jest
+
+now he is upening the test in watch mode.
+
+he is just verifying that the code runs properly
+
+the test is using a function that is not defined, now he needs to create the function.
+
+now it is returning 1 by defining the return 1 (it will not work for other inputs but it doesnot requires more code)
+
+he commits the test that is running correctly
+
+now he creates a new test for the number 2 but a return "1 2" when the number is 2 is not a good code
+ he is now creating a loop that will operate over the input
+
+the numbers will be printed from a slide joinned with spaces
+
+now he adds an if in the loop for the test with the 3 number where he needs to print fizz
+
+to avoid the if inside the loop he is now creating a new function that will verify the numbers to change the number
+
+once the test is fine and the code is refactored he commits the code
+
+now he moves forward to test 5, he adds the buzz to the operation to the conver function that he creates to convert the numbers
+
+
+katas are the exercises to practice the code
+	we can look for katas to practice TDD
+
+Some Final thoughts
+
+	-You can do TDD at any level(unit, integration, e2e). But take into account that the higher you go the slower the cycle gets.
+
+	-The best way to learn it is by practising.
+
+Bibliography
+
+	-Clean Craftsmanship by robert c martin
+
+	-The art of agile development by James Shore
+
+	-TDD by example by kent beck
+
+	-Extreme programming explained by kent beck
+
+Questions?
+
+	-What rule he follows to coverage 100% code? R/ he just applies test for the possible cases that he needs to cover. He also has present if there are parts that can not be testable and it will be present in the coverage.
+
+	-can you test without your team? R/ definetly, as long as we can run tests we can do it, it is not necessary to add our personal tests to the commits 
+
+Techtalk august 3
+
+
+		

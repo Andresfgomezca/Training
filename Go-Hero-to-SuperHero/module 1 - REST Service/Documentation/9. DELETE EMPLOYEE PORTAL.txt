@@ -1,0 +1,59 @@
+Let's talk about the last use case that we are going to cover as part of out Employee Portal,
+
+- /employee/{employeeName} - DELETE
+
+	1. Like the previous endpoint, we are going to expose another path and handler on our EmployeePortal, it will allow us to delete an Employee from the portal.
+
+	2. We will accept a path parameter `{employeeName}`, the name of the employee to delete in the API path that we expose.
+	
+	3. Let's take a look at how our delete handler looks -
+
+func Handlers() http.Handler {
+
+	r := mux.NewRouter()
+
+	r.HandleFunc(portal+postEmployee, CreateEmployee).Methods(http.MethodPost)
+	r.HandleFunc(portal+getEmployee, GetEmployee).Methods(http.MethodGet)
+	r.HandleFunc(portal+getEmployees, GetEmployee).Methods(http.MethodGet)
+
+	r.HandleFunc(portal+patchEmployee, updateEmployee).Methods(http.MethodPut)
+	r.HandleFunc(portal+deleteEmployee, removeEmployee).Methods(http.MethodDelete)
+	return r
+}
+
+func remove(empDB []models.Employee, i int) []models.Employee {
+	return append(empDB[:i], empDB[i+1:]...)
+}
+
+func removeEmployee(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	eName := params["employeeName"]
+	if eName == "" {
+		rw.WriteHeader(http.StatusOK)
+		rw.Write([]byte("employeeName to delete cannot be empty"))
+		return
+	}
+
+	for i, e := range mockDB {
+		if eName == e.Name {
+
+			// this is where we should be persisting the data (delete request)
+			// we will just remove the employee from mockDB array
+			mockDB = remove(mockDB, i)
+			fmt.Println(mockDB)
+			rw.WriteHeader(http.StatusOK)
+			msg := fmt.Sprintf("Resource with name %v deleted successfully.", eName)
+			rw.Write([]byte(msg))
+			return
+		}
+	}
+
+	rw.WriteHeader(http.StatusNotFound)
+	msg := fmt.Sprintf("Resource with name %v not found.", eName)
+	rw.Write([]byte(msg))
+}
+
+	4. We have a utility function - remove, it will help us to remove a given element from our in memory database mockDB.
+	
+	5. With this we have our EmployeePortal ready with the basic CRUD operations.
+In the upcoming sections we will talk about testing and benchmarking these endpoints.

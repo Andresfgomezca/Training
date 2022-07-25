@@ -1,0 +1,43 @@
+SOLID Principles in Golang Explained with Examples
+
+	The SOLID principles are not new to experienced programmers. They give us guidelines on how to arrange functions and data structures and how to organize interconnected classes.
+
+	In this series of posts, we are going to talk about how to implement them correctly with examples written by Go.
+
+	This post would focus on the first principle, the single responsability principle (SRP)
+
+What's SRP? 
+
+	A module, class or function should be responsible to one and only one stakeholder.
+
+	Only one stakeholder has the right to change a module, class, or function.
+
+	The best way to understand this principle is by looking at an infamous example of violating it
+
+Example
+
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+type circle struct {
+	radius float64
+}
+
+func (c circcle) area(){
+	//violating single responsibility principle
+	fmt.Printf("circle area: %f\n", math.Pi*c.radius*c.radius)
+
+}
+
+func main() {
+
+	c := circle{
+		radius: 3,
+	}
+	c.area()
+
+}

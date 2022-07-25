@@ -1,0 +1,38 @@
+Add detailed knowledge of concurrency, parallelism, goruotines and more related topics.
+
+Useful links to help you complete this mission
+
+We present you with some sources to help you complete this mission. Feel free to reach for any other external ways to access this information or reach for deeper knowledge.
+
+Go Concurrency patterns
+https://www.youtube.com/watch?v=f6kdp27TYZs
+
+Gophercon uk
+https://www.youtube.com/watch?v=rDRa23k70CU
+
+Advanced go concurrency patterns
+https://www.youtube.com/watch?v=QDDwwePbDtw
+
+Goroutines
+https://go.dev/tour/concurrency/1
+
+Gophercon US
+https://www.youtube.com/watch?v=KBZlN0izeiY
+
+Channels
+https://go.dev/tour/concurrency/2
+
+WaitGroups
+https://gobyexample.com/waitgroups
+
+Sync.Mutex
+https://go.dev/tour/concurrency/9
+
+
+Skills you'll learn
+
+By completing this mission, you’ll earn some new skills and improve on existing ones, which will be updated to your working ecosystems.
+
+Concurrency - Go Concurrency
+
+Language - Go

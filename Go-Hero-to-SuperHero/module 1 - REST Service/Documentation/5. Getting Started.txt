@@ -1,0 +1,65 @@
+Getting Started
+
+	In this section we will spin up a webserver for our Employee Portal
+
+	We will be using a package/ toolkit called Gorilla/mux. It is a popular choice among developers to build webserver's in Go.
+
+	Package gorlla/mux implements a request router and dispatcher for matching incoming requests to their respective handler.
+
+	The name mux stands for "HTTP request multiplexer".
+	
+	Like the standard http.ServeMux(http is a package that comes as a part of standard libraries when go is installed), mux.Router matches incoming requests against a list of registered routes and calls a handler for the route that matches the request URL.
+
+	More on gorilla/mux: https://github.com/gorilla/mux
+
+Let's spin up a web server...
+
+	1. Create a new folder in $HOME/go/src, lets call it EmployeePortal, create a main.go file inside.
+
+	2. Install gorilla/mux (for a correctly configured go toolchain. See https://go.dev/doc/install#testing )
+
+go get -u github.com/gorilla/mux
+
+	3. Once we have mux, we need to use it, the main.go 
+
+package main
+
+import (
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/mux"
+)
+
+func main() {
+
+	r := mux.NewRouter()
+
+	srv := http.Server{
+		Handler: r,
+		ReadTimeout: time.Second*10,
+		WriteTimeout: time.Second*10,
+		Addr: "127.0.0.1:8001",
+
+	}
+
+	log.Println("Spinning up a new Mux Server...")
+	
+	log.Fatal(srv.ListenAndServe())
+
+}
+  
+	4. So first  we created a new instance of a mux router, then we created a server with some configurations like ReadTimeout, WriteTimeout, Handler, Addr for a better control over the server's behaviour. (See https://pkg.go.dev/net/http#Server)
+
+	5. We are going to be running our server on port 8001. Run the command to compile and run the server.
+
+go run main.go
+
+	6. The command should result with the following result.
+
+$ go run main.go 
+
+2022/02/19 16:45:01 Spinning up a new Mux Server...
+
+-This means that we were able to spin up our webserver successfully.

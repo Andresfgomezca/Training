@@ -1,0 +1,163 @@
+The next part to our EmployeePortal is to achieve another use case
+
+	Find a user by name. GET /employee/{employeeName}
+
+	Find all users present in the portal. GET /employee/
+
+	1. In the controller package we are going to expose a new path and a handler corresponding to it.
+
+	2. Make sure we add a new handler like in controller.go like shown below,
+
+var (
+	portal          = "/portal/api/v1"
+	getEmployees    = "/employee"
+	getEmployee     = "/employee/{employeeName}"
+)
+
+func Handlers() http.Handler {
+
+	r := mux.NewRouter()
+
+	r.HandleFunc(portal+postEmployee, CreateEmployee).Methods(http.MethodPost)
+	r.HandleFunc(portal+getEmployee, GetEmployee).Methods(http.MethodGet)
+	r.HandleFunc(portal+getEmployees, GetEmployee).Methods(http.MethodGet)
+
+	return r
+}
+
+type GetEmployeesResponse struct {
+	Employees []models.Employee `json:"employees"`
+}
+
+func GetEmployee(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	eName := params["employeeName"]
+	if eName == "" {
+		res, err := jsonMarshalFunc(mockDB)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			msg := fmt.Sprintf("unable to serialize response :: %v", err)
+			rw.Write([]byte(msg))
+			return
+		}
+		rw.WriteHeader(http.StatusOK)
+		rw.Write(res)
+		return
+	}
+
+	// since we don't have persistence yet
+	// we will use mockDB an in memory db to check if the employee exists or not
+	for _, e := range mockDB {
+		if strings.Compare(e.Name, eName) == 0 {
+			rw.Header().Set("Content-Type", "application/json")
+			rw.WriteHeader(http.StatusOK)
+			rEmp := fmt.Sprintf("The Employee is Present with Details :: \n ID :: %v\n Name:: %v\n DOJ :: %v\n Skillset :: %v\n", e.ID, e.Name, e.DOJ, e.Skillset)
+			rw.Write([]byte(rEmp))
+			return
+		}
+	}
+
+	msg := fmt.Sprintf("no employee found with the given name :: %v", eName)
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte(msg))
+}
+
+	3. Let's walk over what we just saw, we have a new handler - GetEmployee this will handle requests for both our endpoints exposed in the function Handlers.
+
+	4. We are using an in memory database so we will just return the mockDB array, we use the json.Marshal function to marshal our response and serve the request.
+NOTE: go provides an inbuilt package to handle json read more about the package in the official doc. - https://pkg.go.dev/encoding/json
+
+	5. We see that we are not exactly using json.Marshal, but jsonMarshalFunc this is a way of testing external package functions, known as monkeyPatching (a way of mocking in go). We will talk about this in detail in upcomming sections, but for now its safe to say that we are using json.Marshal here.
+
+Path Parameters :
+
+	We’ve created simple REST API that returns a list of employees. But what happens if we want to just view one article?
+
+	Well, thanks to the gorilla mux router we can add variables to our paths and then pick and choose what articles we want to return based on these variables. Create a new route within your 
+
+handler()
+
+	 function just below our 
+
+/employees
+
+	 route.
+
+r.HandleFunc(portal+getEmployee, returnSingleArticle)
+ 
+	which is nothing but,
+
+r.HandleFunc("/portal/api/v1/employee/{employeeName},GetEmployee).Methods(http.MethodGet)
+
+	as we have declared variables of our paths,
+
+var (
+	portal          = "/portal/api/v1"
+	postEmployee    = "/employee"
+	getEmployees    = "/employee"
+	getEmployee     = "/employee/{employeeName}"
+)
+
+	Notice that we’ve added 
+
+{employeeName}
+
+	 to our path. This will represent our employeeName variable that we’ll be able to use when we wish to return only the employee that has the exact name.
+
+type Employee struct {
+	ID       int16     `json:"id"`
+	Name     string    `json:"name"`
+	DOJ      time.Time `json:"doj"`
+	Skillset []string  `json:"skillset"`
+}
+
+	We can read the employeeName in our request handler, mux provides a function - Vars that takes in the request object and returns a map of parameters set in the request,
+
+params := mux.Vars(r)
+eName := params["employeeName"]
+ 
+
+Query Parameters:
+
+	-API Query parameters can be defined as the optional key-value pairs that appear after the question mark in the URL. Basically, they are extensions of the URL that are utilized to help determine specific content or action based on the data being delivered.
+
+	-We use one query parameter in GET Employees handler to sort the results that we get, 
+sortOrder.
+
+	-Declare the allowedSortOptions for the query parameter sortOrder.
+
+var (
+	portal             = "/portal/api/v1"
+	postEmployee       = "/employee"
+	getEmployees       = "/employee"
+	getEmployee        = "/employee/{employeeName}"
+	patchEmployee      = "/employee/{employeeName}"
+	deleteEmployee     = "/employee/{employeeName}"
+	jsonMarshalFunc    = json.Marshal
+	allowedSortOptions = []string{"asc", "desc"}
+)
+
+	-We get the sortOrder value from the request,
+
+sortOrder := r.URL.Query().Get("sortOrder")
+if !stringInSlice(sortOrder, allowedSortOptions) {
+	rw.WriteHeader(http.StatusBadRequest)
+	msg := fmt.Sprintf("wrong option for query parameter sortOrder valid options are :: %v", allowedSortOptions)
+	rw.Write([]byte(msg))
+	return
+}
+if sortOrder == "" {
+	sortOrder = "asc"
+}
+if sortOrder == "asc" {
+	sort.SliceStable(mockDB[:], func(i, j int) bool {
+		return mockDB[i].Name < mockDB[j].Name
+	})
+} else {
+	sort.SliceStable(mockDB[:], func(i, j int) bool {
+		return mockDB[i].Name > mockDB[j].Name
+	})
+}
+	-We are using an in memory database so just return the sorted in memory array in asc or desc, we sort on employee names.
+
+	-The sort options would be passed to the database query if we were to use a database and return from there.

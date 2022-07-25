@@ -1,0 +1,504 @@
+Go: Code that grows with grace
+
+Go is about composition.
+
+Object oriented but not int he usual way.
+
+	-No classes
+	-No Subtype Inheritance
+	-Interfaces are satirfied implicitly
+
+The result: simple pieces connected by small interfaces
+
+Go is about concurrency
+
+Go provides CSP-LIKE concurrency primitives
+
+	-Lightweight threads(goroutines)
+	-typed thread-safe communiction and synchronization (channels)
+
+The result: comprehensible concurrent code
+
+"Hello,go" program
+
+package main
+
+import "fmt"
+
+func main(){
+fmt.Println("Hello, Go")
+}
+
+"Hello,net" program
+package main
+
+import(
+	"fmt"
+	"log"
+	"net"
+)
+const listenAddr = "localhost:4000"
+
+func main(){
+	l, err:= net.Listen("tcp", listenAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for {
+		c, err := l.Accept()
+		if err != nil{
+			log.Fatal(err)
+		}
+		fmt.Fprintln(c,"hello!")
+		c.Close()
+	}
+}
+this program listens to the tcp port 
+it is printing the world hello in the connection, it is processed with interfaces
+
+
+Interfaces
+
+Fprintln function takes io.writer
+writer is an interface that has a method called write that takes a slice of bytes to return the number of bytes writen and an error message
+
+and the network connection "C" is an io.writer that implements methods read, write and close in its interface Conn just like the writer interface does.
+
+
+"An echo server"
+package main
+
+import(
+	"io"
+	"log"
+	"net"
+)
+
+const listenAddr = "localhost:4000"
+
+func main(){
+	l, err:= net.Listen("tcp", listenAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for {
+		c, err := l.Accept()
+		if err != nil{
+			log.Fatal(err)
+		}
+		io.Copy(c,c)
+	}
+}
+
+the program echos back any writer in this connection, it runs in serial, this means that the program will only run with 1 connection.
+
+to make the program work with multiple connections we can implement goroutines
+
+goroutines
+
+goroutines are lightweight threads that are maneged by the Go runtime. To run a function in a new goroutine, just put "go" before the function call
+"example implementing goroutines"
+package main
+
+import(
+	"fmt"
+	"time"
+)
+
+func main(){
+	go say("lest's go!", 3)
+	go say("ho!",2)
+	go say("hey!", 1)
+	time.Sleep(4*time.Second)
+}
+
+func say( text string, secs int){
+	time.Sleep(time.Duration(secs)*time.Second)
+	fmt.Println(text)
+}
+the program will execute the function say multiple times in different go routines thanks to the keyword go, this function will wait a number of seconds and then it will print a message, both variables are the inputs of the function. 
+
+
+"A concurrent echo server"
+package main
+
+import(
+	"io"
+	"log"
+	"net"
+)
+
+const listenAddr = "localhost:4000"
+
+func main(){
+	l, err:= net.Listen("tcp", listenAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for {
+		c, err := l.Accept()
+		if err != nil{
+			log.Fatal(err)
+		}
+		go io.Copy(c,c)
+	}
+}
+now the code will run multiple goroutines to implement the function Copy, it allows the use of multiple connections.
+
+"Chatroulette" 
+taking a look at a simple program, based on the popular"chat roulette" site
+in short:
+	-a user connects
+	-another user connects
+	-everything one user types is sent to the other
+
+Desing
+
+the chat program is similar to the echo program, with echo, we copy incoming data but for chat we must copy the incoming data from one user's connection to another's.
+
+copying the data is easy, as in real life, the hard part is matching one partner with another.
+
+the desing needs 2 functions, one will be match, to wait until it match with another connection to launch a chat
+
+chat will be a second function that launches 2 go routines, 1 will send the messages from a to b and the second one will do the opposite
+the implementation will be processed with channels
+
+Channels
+
+Goroutines communicate via channels. A channel is a typed conduit, like a unix pipe. channels may be synchronous(unbuffered) or asynchronous(buffered), if the channel is synchronous it will depend on a receiver or the operationw ill be blocked and buffered means tha tthe channel depends in the buffer.
+
+Select
+a select statement is like a switch, but it selects over channel operations, it makes powerful the use of channel, the select statement will block until one of those channel operations is ready.
+
+"select"
+package main
+
+import(
+	"fmt"
+	"time"
+)
+
+func main(){
+ticker := time.NewTicker(time.Millisecond*250)
+boom := time.After(time.Second*1)
+for {
+	select{
+	case <- ticker.C:
+		fmt.Println("tick")
+	case <-boom:
+		fmt.Println("boom!")
+		return //ends the loop
+	}
+}
+}
+
+this code is using multiple functions from the time package, new ticker returns a channel after an specific time period and after returns a channel with an =specific message after an especific time period
+
+
+Modifying echo to create chat
+
+in the accept loop, we replace the call to io.Copy with a call to a new function, match
+
+	"for {
+		c, err := l.Accept()
+		if err != nil{
+			log.Fatal(err)
+		}
+		go match(c)
+	}"
+
+the matcher
+
+the match function simultaneously tries to send an dreceive a connection on a channel
+	-if the send succeeds, the connection has been handed off to another goroutine, so the functions exits and the goroutine shuts down.
+	-if the receive succeeds, a connection has been received from another goroutine. the current goroutine then has two connections, so it starts a chat session between them.
+
+var partner = make(chan io.ReadWriteCloser)
+
+func match(c io.ReadWriteCloser){
+	fmt.Fprint(c, "waiting for a partner...")
+	select {
+	case partner <- c:
+	//now handled by the other goroutine
+	case p := <- partner:
+		chat(p,c)
+	}
+}
+
+the select statement will add the connections to the same channel
+
+The conversation
+the chat function sends a greeting to each connection and then copies data from one to the other, and vice versa.
+
+Notice that i launches another goroutine so that the copy operations may happen concurrently
+
+func chat(a,b io.ReadWriteCloser){
+fmt.Fprintln(a,"found one! say hi.")
+fmt.Fprintln(b,"found one! say hi.")
+go io.Copy(a,b)
+io.Copy(b,a)
+}
+
+now the chat is working but it is not handling the errors if the connection is lost or similar.
+
+Error handling
+It's important to clean up when the conversation iis over. To do this we send the error value from each io.Copy call to a channel, log any non-nil errors, and close both connections
+
+func chat(a,b io.ReadWriteCloser){
+fmt.Fprintln(a,"found one! say hi.")
+fmt.Fprintln(b,"found one! say hi.")
+errc:= make(chan error,1)
+go cp(a,b, errc)
+go cp(b,a, errc)
+if err:= <-errc; err!=nil{
+	log.Println(err)
+}
+a.Close()
+b.Close()
+
+}
+
+func cp(w io.Writer, r io.Reader, errc chan<-error){
+_, err:=io.Copy(w,r)
+errc <- err
+}
+
+now the error is being hangled with the code but it stills looking like a 1990's app, we need to take it to a web app
+
+Taking it to the web
+instead of TCP sockets, we'll use websockets.
+
+we'll serve the user interface with go's standard net/http package, and websocket support is provided by the websocket package from the go. net sub-repository
+
+Go web package looks like this
+
+package main
+
+import(
+	"fmt"
+	"log"
+	"net/http"
+)
+
+const listenAddr = "localhost:4000"
+
+func main(){
+	http.HandleFunc("/",handler) //register handle func in the default route /
+	err:=http.ListenAndServe(listenAddr, nil) //listen on port 4000 and serve http request
+	if err != nil{
+		log.Fatal(err)
+	}
+}
+
+func handler(w http.ResponseWriter, r *http.Request){
+	fmt.Fprint(w, "hello, web")
+}
+
+hello web 
+
+WebSockets work similar 
+
+var sock= new WebSocket("ws://localhost:4000/"); //constructs the web socket
+sock.onmessage=function(m){console.log("Received:",m.data);} //asign a message handler
+sock.send("hello!\n")//we send a message to verify the socket
+
+package main
+
+import(
+	"fmt"
+	"code.google.com/p/go.net/websocket"
+	"net/http"
+)
+
+func main(){
+	http.Handle("/", websocket.Handler(handler)) //we register a websocket handler that takes only 1 //bidirectional connection
+	err:=http.ListenAndServe("localhost:4000", nil)
+	if err != nil{
+		log.Fatal(err)
+	}
+}
+
+func handler(c *websocket.Conn){
+	var s string
+	fmt.Fscan(c,&s)
+	fmt.Println("received:",s)
+	fmt.Fprint(c,"How do you do?")
+}
+
+To use these websockets together with the chat project we follow the next implementation
+
+Using the http and websocket packages
+
+package main
+
+import(
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"code.google.com/p/go.net/websocket"
+	"html/template"
+)
+
+const listenAddr = "localhost:4000"
+
+func main(){
+	http.HandleFunc("/", rootHandler) //route - function 
+	htttp.Handle("/socket", websocket.Handler(socketHandler))//webroute to register a new websocket with the webroute
+
+	err:=http.ListenAndServe(listenAddr, nil) 
+	if err != nil{
+		log.Fatal(err)
+	}
+}
+
+func handler(w http.ResponseWriter, r *http.Request){
+	fmt.Fprint(w, "hello, web")
+}
+
+//the implementation of roothandler 
+//Serving the HTML and javascript
+//the implementation of roothandler uses the html template package
+
+func rootHandler(w http.ResponseWriter, r *http.Request){
+	rootTemplate.Execute(w, listenAddr) //the function executes the template with the response provided
+}
+
+var rootTemplate = template.Must(template.New("root").Parse(`
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="urf-8" />
+<script>
+	websocket = new WebSocket("ws://{{.}}/socket");
+	websocket.onmessage = onMessage;
+	websocket.onclose = onClose;
+</html>
+`))
+
+//ws://{{.}}/socket inserts the websocket in the address provided, in this case listenAddr passed in the rootHandler function
+
+
+Adding a socket type
+
+we can't just use a websocket.Conn instead of the net.Conn, because a websocket.Conn is held open by its handler function. here we use a channel to keep the handler running intul the socket's close method is called
+
+type socket struct {
+	conn *websocket.Conn
+	done chan bool
+}
+
+func (s socket) Read(b []byte) (int, error){ return s.conn.Read(b)}
+func (s socket) Write(b []byte) (int, error){ return s.conn.Write(b)}
+
+func (s socket) Close() error{
+	s.done <- true
+	return nil
+}
+
+func socketHandler(ws *websocket.Conn){
+	s:=socket{conn: ws, done: make(chan bool)}
+	go match(s)
+	<-s.done
+}
+
+Struct embedding
+
+Go supports a kind of "mix-in" functionality with a feature known as "struct embedding" the embedding struct delegates calls to the embedded type's methods
+
+type A struct{}
+
+func (A) Hello(){
+	fmt.Println("HELLO!")
+}
+
+type B struct {
+	A //methods for A are now embedded
+}
+
+//func (b B) Hello() { b.A.Hello()} //(implicitly!)
+
+func main(){
+	var b B
+	b.Hello()
+}
+
+Embedding the websocket connection
+
+By embedding the *websocket.Conn as an io.ReadWriter, we can drop the explicit socket Read and Write methods
+
+type socket struct {
+	io.ReadWriter //embedding the connection as an io.ReadWriter to drop the methods
+	done chan bool
+}
+
+//now the methods read and write are not required and the socket can be build with the connection as a io.ReadWriter
+func (s socket) Close() error{
+	s.done <- true
+	return nil
+}
+
+func socketHandler(ws *websocket.Conn){
+	s:=socket{ws, make(chan bool)}
+	go match(s)
+	<-s.done
+}
+
+the startup can n ot be launch because the users are in the waiting for a partner state, its a bootstrap problem
+we don't get users until theres people to talk to and we don't get people to talk to if there are not users
+
+Relieving loneliness
+what if you connect but there]s noone there?
+wouldn't it be nice if we could synthesize a chat partner?
+let's do it
+
+he wants to use markov chains to create a bot 
+
+he is not going to implemented but he will use the library for markov chains that go docs has
+
+golang.org/doc/codewalk/markov
+
+we'll use a version that has been modified to be safe for concurrent use
+
+// Chain contains a map("chain") of prefixes to a list of suffixes.
+//a prefix is a string of prefixlen words joined with spaces.
+//a suffix is a single word. a prefix can have multiple suffixes.
+
+type Chain struct{
+//write parses the bytes into prefixes and suffixes that are stored in a chain
+func (c *Chain) Write(b []byte)(int,error){
+
+//Generate returns a string of at most n words generated from Chain
+func(c *Chain) Generate(n int) string{
+
+}
+
+Feeding the chain
+
+we will use all text that enters the system to build the markov chains.
+to do this we split the rocket's ReadWriter into a Reader and a Writer, and feed all incoming data to the chain instance
+
+type socket struct {
+	io.Reader
+	io.Writer
+	done chan bool
+}
+
+car chain = NewChain(2) //2-word prefixes-- 3 words in total
+
+func socketHandler(ws *websocket.Conn){
+	r, w:= io.Pipe()
+	go func(){
+		_, err:= io.Copy(io.MultiWriter(w, chain), ws)
+		w.CloseWithError(err)
+	}()
+	s := socket{r, ws, make(chan bool)}
+	go match(s)
+	<- s.done
+
+}
+
+}
+
+
+

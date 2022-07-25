@@ -1,0 +1,20 @@
+The communication between the client and the server needs to be fast in any web application and without any interruption in this connection, to provide a good experience to the users.
+
+This communication client-server is found in the origin of inthernet. but the primitive methods (http) are limited and not the best solutions.
+
+the method request-response is one of the most used methods where the client request something to the server and he will receive a response, activated with the interaction of the web (could be a button that changes the complete interface of the website), with ajax(asynchronous javascript and xml) this process started to change because now the clients, just need to change parts of the website.
+
+There are situations where we need to update the data withouth the interaction of the client like the change of the score of a soccer game or the changes in the new yorek stock exchange, this process is known as polling and is excecuted in different time intervals where the will be updated according to this time even if the data has no changes it will be updated it will open and close the connection each time the info is updated. 
+long polling is a method that keeps the request of the client if there is not changes in the data and once there is a change it will provide the response, this process does not send empty responses. The issue presented with the polling is that it keeps the connection open or the server will receive a lot of requests. websockets will solve this inconvenient.
+
+These websocket are bi directional full duplex connections, allowing the server and the client to receive information at any moment, soft connection that can be open for a period of time without affect the performance of the server.
+
+websockets are part of the standard html 5.0, it does not required extra plugins. they are located in the tcp (transmition control protocol) chape over http, it's a hand-shake mechanism between server-client, after the hand-shake, the connection is updated to tcp.
+
+process
+
+http upgrade header request       --> invoke -->
+						Make upgrade header
+htttp upgrade header response     <-- return <--
+
+client 				 server

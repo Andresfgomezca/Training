@@ -1,0 +1,232 @@
+Unit testing and coverage, are an important part of a creating a good web application.
+
+Go provides an inbuilt support for testing which comes with the standard library.
+
+We have already gone through basic unit testing in Go.
+
+Let's take a look at how we can test the EmployeePortal endpoints.
+
+Testing the Get Employee and Get all Employees endpoints:
+
+	-We know that tests reside in a file names *_test.go, we have a controller.go so we will create a file named controller_test.go.
+
+	-Firstly to test the endpoints we will create a custom struct which defines our expectations and results from a test case.
+
+type ControllerTest struct {
+	name       string
+	method     string
+	url        string
+	statuscode int
+	reqBody    *bytes.Buffer
+	pre        func()
+	post       func()
+	ExpectErr  bool
+}
+
+	-The custom struct we defined contains a few fields we are going to need while testing the endpoints, - name(test case name), method(http method), url(url to test), statuscode (expected status code), pre(mocking, monkeypatching), post (reverting back to the original definitions after mocking, monkey patching), expectErr(whether the test case expects error or not)
+
+	-Let's look at a test suite for GET Employees and how we use the custom struct we defined.
+
+package controller
+
+import (
+	"bytes"
+	"errors"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+type ControllerTest struct {
+	name       string
+	method     string
+	url        string
+	statuscode int
+	reqBody    *bytes.Buffer
+	pre        func()
+	post       func()
+	ExpectErr  bool
+}
+
+func TestGetEmployee(t *testing.T) {
+
+	temp := jsonMarshalFunc
+
+	tests := []ControllerTest{
+		{
+			name:       "Get All Employees Successfull",
+			method:     http.MethodGet,
+			statuscode: http.StatusOK,
+			url:        "/portal/api/v1/employee",
+		},
+		{
+			name:       "Get Single Employee Successfull",
+			method:     http.MethodGet,
+			statuscode: http.StatusOK,
+			url:        "/portal/api/v1/employee/test1",
+		},
+		{
+			name:       "Get Single employee success but not found",
+			method:     http.MethodGet,
+			statuscode: http.StatusOK,
+			url:        "/portal/api/v1/employee/test123",
+		},
+		{
+			name:       "Get Single employee internal server error",
+			method:     http.MethodGet,
+			statuscode: http.StatusInternalServerError,
+			url:        "/portal/api/v1/employee",
+			pre: func() {
+				jsonMarshalFunc = func(v interface{}) ([]byte, error) {
+					return nil, errors.New("error while marshalling")
+				}
+			},
+			post: func() {
+				jsonMarshalFunc = temp
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.pre != nil {
+				tt.pre()
+			}
+			req, err := http.NewRequest(tt.method, tt.url, nil)
+			if err != nil {
+				t.Fatal("")
+			}
+			req.Header.Set("Content-Type", "application/json")
+			rr := httptest.NewRecorder()
+			handler := Handlers()
+			handler.ServeHTTP(rr, req)
+			if st := rr.Code; st != tt.statuscode {
+				t.Errorf("test name :: %v , expected status %d got %d", tt.name, tt.statuscode, st)
+			}
+			if tt.post != nil {
+				tt.post()
+			}
+
+		})
+	}
+}
+
+	-We defined a few test cases using the custom struct we defined and we defined our expectations along with the URL, httpMethod, etc.
+
+	-At the end we looped over these tests and using the http package we tried to hit the endpoints, checked the response codes to match with the expected ones, if they do we call it a successful test case.
+ 
+
+MonkeyPatching
+
+	-monkey patching
+	 is the method to mock the implementation of a function. so we replace the real function with another function that accepts the same parameters and returns the same outputs. One of the disadvantages is that if you want to mock a method of a struct or the package of the unit test file is different from the function that we want to test, we need to make the function a public function or method.
+
+	-For example lets take GET Employees handler, there is a place where we send the list of employees as the response, but we marshal this response into json first and for this we are using the json package which is included in the standard Go library.
+
+var (
+	portal             = "/portal/api/v1"
+	postEmployee       = "/employee"
+	getEmployees       = "/employee"
+	getEmployee        = "/employee/{employeeName}"
+	patchEmployee      = "/employee/{employeeName}"
+	deleteEmployee     = "/employee/{employeeName}"
+	jsonMarshalFunc    = json.Marshal
+)
+
+	-the json.Marshal function is mocked as jsonMarshalFunc as we want the json.Marshal function to return an error value for one of our test cases.
+
+	-the way jsonMarshalFunc is being used in our GET Employee handler is-
+
+params := mux.Vars(r)
+	eName := params["employeeName"]
+	if eName == "" {
+		res, err := jsonMarshalFunc(mockDB)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			msg := fmt.Sprintf("unable to serialize response :: %v", err)
+			rw.Write([]byte(msg))
+			return
+		}
+		rw.WriteHeader(http.StatusOK)
+		rw.Write(res)
+		return
+	}
+
+	-When we look at one of our test case above-
+
+emp := jsonMarshalFunc
+{
+			name:       "Get Single employee internal server error",
+			method:     http.MethodGet,
+			statuscode: http.StatusInternalServerError,
+			url:        "/portal/api/v1/employee",
+			pre: func() {
+				jsonMarshalFunc = func(v interface{}) ([]byte, error) {
+					return nil, errors.New("error while marshalling")
+				}
+			},
+			post: func() {
+				jsonMarshalFunc = temp
+			},
+},
+
+	-First we store the original value of the func in a temp variable so we can revert to its original value after we are done mocking.
+
+	-In the pre part of our test case we make the func return an error so that we cover one more error scenario in our handler.
+
+	-In the post part of our test case we revert back to the original signature of the func.
+
+
+Example POST Employee Endpoint Tests:
+
+func TestPostEmployee(t *testing.T) {
+	jsonStr := []byte(`{"id":1,"name":"testUser","skillset":["go","testing"]}`)
+	emptyJson := []byte(``)
+	testcases := []ControllerTest{
+		{
+			name:       "Post Employee Success",
+			method:     http.MethodPost,
+			url:        "/portal/api/v1/employee",
+			statuscode: http.StatusOK,
+			reqBody:    bytes.NewBuffer(jsonStr),
+		},
+		{
+			name:       "Post Employee Bad Request",
+			method:     http.MethodPost,
+			url:        "/portal/api/v1/employee",
+			statuscode: http.StatusBadRequest,
+			reqBody:    bytes.NewBuffer(emptyJson),
+		},
+		{
+			name:       "Post Employee method not allowed",
+			method:     http.MethodPost,
+			url:        "/portal/api/v1/employ",
+			statuscode: http.StatusNotFound,
+			reqBody:    bytes.NewBuffer(jsonStr),
+		},
+		{
+			name:       "Post Employee method not allowed",
+			method:     http.MethodPatch,
+			url:        "/portal/api/v1/employee",
+			statuscode: http.StatusMethodNotAllowed,
+			reqBody:    bytes.NewBuffer(jsonStr),
+		},
+	}
+
+	for _, tt := range testcases {
+		req, err := http.NewRequest(tt.method, tt.url, tt.reqBody)
+		if err != nil {
+			t.Fatal("")
+		}
+		req.Header.Set("Content-Type", "application/json")
+		rr := httptest.NewRecorder()
+		handler := Handlers()
+		handler.ServeHTTP(rr, req)
+		if st := rr.Code; st != tt.statuscode {
+			t.Errorf("test name :: %v , expected status %d got %d", tt.name, tt.statuscode, st)
+		}
+	}
+}
+ 
+
+NOTE: Try and complete tests cases for PUT and DELETE endpoints yourselves as an exercise.

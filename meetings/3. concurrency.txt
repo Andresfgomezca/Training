@@ -1,0 +1,107 @@
+microservices and concurrency
+
+1. servicio
+
+component software realiza una tarea
+
+posee un contrato, interface e implementacion
+
+ejemplos, spring service, API comunicaciones apis rest
+
+
+
+2. microservicios
+
+componente software autonomo, especializado.
+expone un contrato
+posee una interface por lo general RESTful
+
+
+
+posee lo necesario para cumplir su funcion
+la comunicacion con otros microservicios.
+especializado, se enfoca en realizar una unica funcion.
+
+van a tener una definicion de que se puede hacer con estos microservicios
+
+rest = http, es la manera que utilizaremos
+ para que lo necesitamos? tiene multiples beneficios
+beneficios
+
+Escalabilidad = tener una aplicacion cuyos recursos se pueden incrementar o disminuir de acuerdo a la demanda
+Reutilizacion = si el micro es especializado podemos ir armando rompecabezas con multiples piezas para formar un proceso mas complejo reutilizando distintos microservicios
+Agilidad = enfocar grupos de desarrolladores para completar estas actividades
+
+contrato? 
+equipo encargado de microservicio de almacenes y van a hacer otras personas que utilizaran ese servicio,
+definimos un contrato que sera una documentaccion que especifica los que se entragara y lo que se recibira para el servicio
+3. REST
+
+verbos http: GET, POST, PUT, DELETE, etc -> esto forma parte de nuestro contrato porque especifica que end points
+put actualizar
+post para entregar informacion
+get para obtener informacion
+delete para borrar informacion
+
+utiliza
+uso de recursos
+Codigo http: 2xx,3xx,4xx,5xx
+
+ejemplo get almacen para recibir los almacenes
+post crear almacenes
+put para actualizarlos
+delete para eliminarlos
+estos usaran recursos
+las respuestas seran usando codigo http
+300 una redireccion
+cuando uno se logea y utiliza google para hacer la autenticacion
+400 errores por parte del cliente
+500 errores del servidor
+
+4. microservicios y monolitos
+monolito es una aplicacion normal grande que se desplega de manera unica y que conlleva toda la logica del negocio 
+
+los microservicios forman parte de algunos monolitos
+
+no significa que los monolitos sean malos, depende de la logica dle negocio, no todos se pueden pasar a microservicios
+
+incremento de la complejidad: transacciones distribuidas, seguridad
+
+independencia de desarrollo
+
+microservicios estan de moda por que se oriendan a soluciones tipo cloud
+
+al ser autonomos podemos mejorar el performance para reducir los costos en cloud
+
+extisten patrones de microservicias para solucionar problemas:
+service discovery, circuit breaker, SAGA, etc.
+
+buscar microservices patterns.
+
+el modulo de rest nos mostrata como crear una interfaz de rest
+
+trabajo final expondra las operaciones comunes, get post put delete
+
+5. concurrencia
+uso de cores para realizar un proceso
+el progr4ama ern go estara enviando una peticion el procesador decidira donde ejecutar diversas ordenes dependiendo de la cantidad de cores
+
+paralelismo es enviar una tarea compleja y resolverla dividiendola para que la resulvan multiples cores
+depende del proceso que vayamos a realizar porque al juntar el proceso dividido puede tener mayor dificultad
+
+defer es usado para cerrar acceso a archivos, conexion db, finalizar recurso cloud.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

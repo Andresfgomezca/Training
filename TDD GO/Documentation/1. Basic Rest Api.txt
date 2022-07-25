@@ -1,0 +1,6 @@
+https://www.youtube.com/watch?v=pQAV8A9KLwk
+Golang REST API CRUD con go
+
+a REST API is a server that responds in a json format
+
+implementing multiple mods like http or json, and mux that is a module that allow us to define the routes of our server

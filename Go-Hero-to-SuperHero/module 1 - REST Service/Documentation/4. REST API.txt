@@ -1,0 +1,14 @@
+REST API
+
+	Let's take an Employee Portal for example. 
+
+	An Employee Portal in an Organization must serve the employee data at all times for various internal reasons.
+
+	A basic set of use cases this Employee Portal should target are :
+
+-Onboard a new Employee
+-Check the joining data of an employee
+-Remove an Employee
+-Update Personal Details of an Existing employee, etc.
+
+	Let's take a look at how we can get this Employee portal up and running with the above listed use cases in the upcomming slides.

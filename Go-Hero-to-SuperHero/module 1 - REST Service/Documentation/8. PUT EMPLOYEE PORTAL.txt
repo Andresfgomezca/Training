@@ -1,0 +1,72 @@
+Let's talk about a use case where we need to update the name or the skillsets of an Employee,
+
+/employee/{employeeName} - PUT
+
+	1. We will expose a new endpoint, an updateEmployee in our Handlers function, it will take in a request struct which will us to update the Employee object,
+
+	2. We will accept a path parameter `{employeeName}` in our api path to know which employee to update.
+	
+	3. Let's take a look at the update updateEmployeeHandler,
+
+var (
+	portal          = "/portal/api/v1"
+	postEmployee    = "/employee"
+	getEmployees    = "/employee"
+	getEmployee     = "/employee/{employeeName}"
+	patchEmployee   = "/employee/{employeeName}"
+)
+
+func Handlers() http.Handler {
+
+	r := mux.NewRouter()
+
+	r.HandleFunc(portal+postEmployee, CreateEmployee).Methods(http.MethodPost)
+	r.HandleFunc(portal+getEmployee, GetEmployee).Methods(http.MethodGet)
+	r.HandleFunc(portal+getEmployees, GetEmployee).Methods(http.MethodGet)
+
+	r.HandleFunc(portal+patchEmployee, updateEmployee).Methods(http.MethodPut)
+	return r
+}
+
+func updateEmployee(rw http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	eName := params["employeeName"]
+	if eName == "" {
+		rw.WriteHeader(http.StatusOK)
+		rw.Write([]byte("employeeName to update cannot be empty"))
+		return
+	}
+
+	patchEmployee := models.Employee{}
+	err := json.NewDecoder(r.Body).Decode(&patchEmployee)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		msg := fmt.Sprintf("please check the request body :: %v", err)
+		rw.Write([]byte(msg))
+		return
+	}
+
+	for _, e := range mockDB {
+		if eName == e.Name {
+			e.ID = patchEmployee.ID
+			e.DOJ = patchEmployee.DOJ
+			e.Name = patchEmployee.Name
+			e.Skillset = patchEmployee.Skillset
+
+			// this is where we should be persisting the updated data
+			// we will just set these values in our mockDB array
+			rw.WriteHeader(http.StatusNoContent)
+			msg := fmt.Sprintf("Resource with name %v updated successfully.", eName)
+			rw.Write([]byte(msg))
+			return
+		}
+	}
+
+	rw.WriteHeader(http.StatusNotFound)
+	msg := fmt.Sprintf("Resource with name %v not found.", eName)
+	rw.Write([]byte(msg))
+}
+
+	4. We return back a http status code 204 - Status No content signifying that we have successfully updated the employee record in the backend.
+
+	5. With this we have added another endpoint to out Employee portal covering one more use case.

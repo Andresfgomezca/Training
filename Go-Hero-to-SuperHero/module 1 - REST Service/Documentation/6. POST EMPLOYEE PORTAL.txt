@@ -1,0 +1,115 @@
+Let's go on to creating a new endpoint for onboarding new employees on on EmployeePortal.
+	POST - /employee
+
+	1. Let's make some changes to our workspace. We will move all our handlers to a separate folder controller, keep our entry point to the portal clean and readable - main.go
+
+	2. Our main.go should look like,
+
+package main
+
+import (
+	"EmployeePortal/controller"
+	"log"
+	"net/http"
+	"time"
+)
+
+func main() {
+
+	r := controller.Handlers()
+	srv := http.Server{
+		Handler:      r,
+		ReadTimeout:  time.Second * 10,
+		WriteTimeout: time.Second * 10,
+		Addr:         "127.0.0.1:8001",
+	}
+
+	log.Println("Spinning up a new Mux Server...")
+
+	log.Fatal(srv.ListenAndServe())
+
+}
+
+	3. And controller.go inside the controller package in our workspace,
+
+package controller
+
+import (
+	"EmployeePortal/models"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/gorilla/mux"
+)
+
+var (
+	portal          = "/portal/api/v1"
+	postEmployee    = "/employee"
+	getEmployees    = "/employee"
+	getEmployee     = "/employee/{employeeName}"
+	patchEmployee   = "/employee/{employeeID}"
+	deleteEmployee  = "/employee/{employeeID}"
+	jsonMarshalFunc = json.Marshal
+)
+
+var mockDB = []models.Employee{
+	{
+		ID:       3,
+		Name:     "test1",
+		DOJ:      time.Now(),
+		Skillset: []string{"sql", "casssandra", "aws"},
+	},
+	{
+		ID:       24,
+		Name:     "test2",
+		DOJ:      time.Now(),
+		Skillset: []string{"mongo", "elasticsearch", "azure"},
+	},
+}
+
+func Handlers() http.Handler {
+
+	r := mux.NewRouter()
+
+	r.HandleFunc(portal+postEmployee, CreateEmployee).Methods(http.MethodPost)
+
+	return r
+}
+
+func CreateEmployee(rw http.ResponseWriter, r *http.Request) {
+	emp := models.Employee{}
+	err := json.NewDecoder(r.Body).Decode(&emp)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		msg := fmt.Sprintf("please check the request body :: %v", err)
+		rw.Write([]byte(msg))
+		return
+	}
+
+	// add persistence here
+	// for now we will just save it in out memory and
+	// return the decoded employee object
+	mockDB = append(mockDB, emp)
+
+	fmt.Printf("The Employee is :: \n ID :: %v\n Name:: %v\n DOJ :: %v\n Skillset :: %v\n", emp.ID, emp.Name, emp.DOJ, emp.Skillset)
+}
+mockDB is an in memory database we will use as persistence is not the focus of this topic,
+we have defined urls as variables that are used in the handlers function.
+the CreateEmployee is our request handler that will handle all our POST Employee requests.
+Note: It is always a best practice to make versions of our API's for future deprecations/ updates, etc. We have exposed our endpoints on a basepath as
+- portal = /portal/api/v1, so our endpoint will look like http://localhost:8001/portal/api/v1/employee  
+
+	4. Once we have this setup properly, let's test our handler out, using POSTMAN or curl,
+
+~/go/src/EmployeePortal$ go run main.go 
+2022/02/26 17:04:49 Spinning up a new Mux Server...
+The Employee is :: 
+ ID :: 1
+ Name:: Eshan
+ DOJ :: 2018-09-22 12:42:31 +0000 UTC
+ Skillset :: [go mongo docker k8s rest]
+
+	5. With this we can say that we have an endpoint up and running for onboarding users onto our Employee Portal.

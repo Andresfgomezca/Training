@@ -1,0 +1,14 @@
+Setting up the environment
+First download and install Go, you can follow this video tutorial or you can head over to Go's website and follow the installation section.
+https://www.youtube.com/watch?v=nbkjGixXnlI&index=1&list=PL2ANXDJvvFeJLRIL_8NZl5LGtrRE3sE_E
+https://golang.org/doc/install
+
+Now you need to setup the development environment. Go organizes the code in what it's called a workspace. Here is a tutorial from Go's website on how to set it up.
+
+As for what to use you have lots of options. All the mostly used editors have very good support for Go, VisualStudioCode has a very good and highly maintained Go plugin. If are a vim user you are in luck, we have a kickass vim-go plugin as well. Atom has very good support too.
+
+If you don't already know git then head over to this tutorials to learn a bit. It will be necessary for this course but also along your career as a developer.
+https://try.github.io/levels/1/challenges/1
+
+Here is a very good introductory talk given by Andrew Gerrand, one of the core Go team members.
+https://vimeo.com/53221560

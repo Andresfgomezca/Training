@@ -1,0 +1,66 @@
+Trainer Miguel Ccantuta
+
+-Methodology
+	Study group
+	4 weeks training, last week for extra actrivities
+	Sync meetings - One per week
+	Share knowledge & experiences
+
+-Globant University
+Academy Golang - zero to hero
+slack:
+13 modulos
+
+quiz time
+
+assignment 
+
+topics
+
+basic language syntax
+
+oop
+
+testing 
+
+db support - important
+
+rest / http support - important
+
+concurrency - important
+
+-Extra activities
+Final project
+
+Fit interview
+
+-Resources
+globant github repositories
+
+Q&A gist repository for assistance
+
+Slack channel
+
+Go playground 
+https://go.dev/play/ 
+assistant to run go code
+
+week 1 - Activities
+globant github access
+install go - https://go.dev/doc/install
+Configura IDE - visual studio code.
+"The go tour section"
+
+marisol puede ayudarnos
+ 
+Libraries-http
+Gorillamux
+
+gingonic
+
+shi
+
+
+
+
+
